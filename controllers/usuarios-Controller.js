@@ -13,8 +13,18 @@ exports.cadastrarUsuario = (req, res, next) => {
         bcrypt.hash(req.body.senha, 10, (errBcrypt, hash) => {
           if(errBcrypt){  return res.status(500).send({ error: errBcrypt }) }
           conn.query(
-            `INSERT INTO usuarios (descricao, senha) VALUES(?,?)`,
-            [req.body.descricao, hash],
+            `INSERT INTO usuarios (descricao, senha, nomecompleto, email, cep, logradouro, numero, pais, estado, uf) VALUES(?,?,?,?,?,?,?,?,?,?)`,
+            [ req.body.descricao, 
+              hash, 
+              req.body.nomecompleto,
+              req.body.email,
+              req.body.cep,
+              req.body.logradouro,
+              req.body.numero,
+              req.body.pais,
+              req.body.estado,
+              req.body.uf,
+            ],
             (error, results) => {
               conn.release();
               if(error){ return res.status(500).send({ error: error }) }
@@ -58,7 +68,9 @@ exports.Login = (req, res, next) => {
           });
           return res.status(200).send({ 
             mensagem: 'Autenticado com sucesso.' ,
-            token: token
+            token: token,
+            id_usuario: results[0].id_usuario,
+            descricao: results[0].descricao,
           });
         }
         return res.status(401).send({ mensagem: 'Falha na autenticação.' });
